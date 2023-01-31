@@ -22,7 +22,7 @@ def sendPhoto(chatid, allImages):
             (
                 "allImages[0][0]",
                 open(
-                    str(os.getcwd()) + "/" + allImages[0][0],
+                     "/tmp/" + allImages[0][0],
                     "rb",
                 ),
                 "image/png",
@@ -88,7 +88,7 @@ def stabilityAI(imagePrompt):
             if artifact.type == generation.ARTIFACT_IMAGE:
                 img = Image.open(io.BytesIO(artifact.binary))
                 img.save(
-                    str(artifact.seed) + ".png"
+                    "/tmp/" + str(artifact.seed) + ".png"
                 )  # Save our generated images with their seed number as the filename.
                 fileNames.append(str(artifact.seed) + ".png")
     return fileNames
@@ -105,7 +105,9 @@ def telegram():
         msg = request.get_json()
         chat_id = msg["message"]["chat"]["id"]
         inputText = msg["message"]["text"]
-        if inputText.startswith("/generate") and len(inputText) > len("/generate"):
+        if inputText == "/start":
+            sendMessage(chat_id, "Ya, I am Online. Send me a Prompt")
+        elif inputText.startswith("/generate") and len(inputText) > len("/generate"):
             imagePrompt = inputText[len("/generate") + 1 :]
             fileNames = stabilityAI(imagePrompt)
             if len(fileNames) < 1:
