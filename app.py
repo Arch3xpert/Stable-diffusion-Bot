@@ -1,5 +1,6 @@
 import os
 import io
+import json
 import warnings
 import requests
 from PIL import Image
@@ -14,6 +15,61 @@ os.environ["STABILITY_HOST"] = "grpc.stability.ai:443"
 STABILITY_KEY = os.environ["STABILITY_KEY"]
 botToken = os.environ["botToken"]
 
+
+def startFunction(chatid):
+    url = f"https://api.telegram.org/bot{botToken}/sendPhoto"
+    payload = {
+        "chat_id": chatid,
+        "photo": "AgACAgQAAxkBAAEcpKRj2ghW_nPIyn3493KYEtVwUch9kgACErAxG5Tv1VJ1WtlPA4QXbwEAAwIAA3gAAy4E",
+        "caption": "Bot made by @Archxpert\n\nUse command /generate { prompt here } to generate a image",
+    }
+    r = requests.post(url, data=payload)
+    return r
+
+
+def wholeJsonMaker(allImages):
+    finalJSON = []
+    for i in range(len(allImages)):
+        finalJSON.append(
+            {
+                "type": "photo",
+                "media": "attach://" + allImages[i][0],
+                "caption": allImages[i][1],
+            }
+        )
+    return json.dumps(finalJSON)
+
+
+def sendMediaGroup(chatid, allImages):
+    url = f"https://api.telegram.org/bot{botToken}/sendMediaGroup"
+    payload = {
+        "chat_id": chatid,
+        "media": wholeJsonMaker(allImages),
+    }
+    files = [
+        (
+            allImages[i][0],
+            (
+                allImages[i][0],
+                open("/tmp/" + allImages[i][0], "rb"),
+                "image/png",
+            ),
+        )
+        for i in range(len(allImages))
+    ]
+    r = requests.post(url, data=payload, files=files)
+    # print(r.text)
+    return r
+
+
+def get_required_text(text):
+    parts = text.split(" ")
+    if parts[0].startswith("/generate"):
+        required_text = " ".join(parts[1:])
+        return required_text.split("@")[0]
+    return None
+
+
 def sendPhoto(chatid, allImages):
     url = f"https://api.telegram.org/bot{botToken}/sendPhoto?chat_id={chatid}"
     files = [
@@ -22,7 +78,7 @@ def sendPhoto(chatid, allImages):
             (
                 "allImages[0][0]",
                 open(
-                     "/tmp/" + allImages[0][0],
+                    "/tmp/" + allImages[0][0],
                     "rb",
                 ),
                 "image/png",
@@ -106,9 +162,11 @@ def telegram():
         chat_id = msg["message"]["chat"]["id"]
         inputText = msg["message"]["text"]
         if inputText == "/start":
-            sendMessage(chat_id, "Ya, I am Online. Send me a Prompt")
-        elif inputText.startswith("/generate") and len(inputText) > len("/generate"):
-            imagePrompt = inputText[len("/generate") + 1 :]
+            startFunction(chat_id)
+        elif (
+            inputText.startswith("/generate") and len(get_required_text(inputText)) > 0
+        ):
+            imagePrompt = get_required_text(inputText)
             fileNames = stabilityAI(imagePrompt)
             if len(fileNames) < 1:
                 sendMessage(
