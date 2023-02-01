@@ -20,7 +20,7 @@ def startFunction(chatid):
     url = f"https://api.telegram.org/bot{botToken}/sendPhoto"
     payload = {
         "chat_id": chatid,
-        "photo": "AgACAgQAAxkBAAEcpKRj2ghW_nPIyn3493KYEtVwUch9kgACErAxG5Tv1VJ1WtlPA4QXbwEAAwIAA3gAAy4E",
+        "photo": "https://files29.s3.us-west-004.backblazeb2.com/photo1675232544.jpeg",
         "caption": "Bot made by @Archxpert\n\nUse command /generate { prompt here } to generate a image",
     }
     r = requests.post(url, data=payload)
