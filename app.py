@@ -9,9 +9,9 @@ app = Flask(__name__)
 
 numberOfImages = 2  # Maximum 10, Minimum 2
 stepsForNormal = 50  # Maximum 150, Minimum 10
-stepsForSudo = 120  # Maximum 150, Minimum 10
+stepsForSudo = 150  # Maximum 150, Minimum 10
 sudoUserSubscribeMessage = (
-    "You are not authorized to use this command. Please use /generate instead."
+    "You have no access to use this Command\n Get It From @Archxpert."
 )
 APIErrorMessage = "Your request activated the API's safety filters and could not be processed.\nPlease modify the prompt and try again."
 
