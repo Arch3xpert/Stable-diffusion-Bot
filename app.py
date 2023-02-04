@@ -5,6 +5,8 @@ import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 from flask import Flask, request, Response
 from c8 import C8Client
 
+app = Flask(__name__)
+
 numberOfImages = 2  # Maximum 10, Minimum 2
 stepsForNormal = 50  # Maximum 150, Minimum 10
 stepsForSudo = 120  # Maximum 150, Minimum 10
