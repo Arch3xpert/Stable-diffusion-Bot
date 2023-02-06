@@ -14,7 +14,7 @@ sudoUserSubscribeMessage = (
     "You have no access to use this Command\n Get It From @Archxpert."
 )
 APIErrorMessage = "Your request activated the API's safety filters and could not be processed.\nPlease modify the prompt and try again."
-
+coolDownTime = 60
 
 # Our Host URL should not be prepended with "https" nor should it have a trailing slash.
 os.environ["STABILITY_HOST"] = "grpc.stability.ai:443"
@@ -219,11 +219,11 @@ def telegram():
             inputText.startswith("/generate")
             and len(get_required_text(inputText, "/generate")) > 0
         ):
-            if personID in timer and time.time() - timer[personID] < 60:
+            if personID in timer and time.time() - timer[personID] < coolDownTime:
                 sendMessage(
                     chat_id,
                     "Please wait "
-                    + str(int(60 - time.time() + timer[personID]))
+                    + str(int(coolDownTime - time.time() + timer[personID]))
                     + " seconds before generating another image",
                     messageID,
                 )
