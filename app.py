@@ -168,7 +168,7 @@ def stabilityAI(imagePrompt, steps):
     answers = stability_api.generate(
         prompt=imagePrompt,
         steps=steps,
-        cfg_scale=8.0,  # Influences how strongly your generation is guided to match your prompt.
+        cfg_scale=6.0,  # Influences how strongly your generation is guided to match your prompt.
         # Setting this value higher increases the strength in which it tries to match your prompt.
         # Defaults to 7.0 if not specified.
         width=512,  # Generation width, defaults to 512 if not included.
