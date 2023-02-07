@@ -14,7 +14,7 @@ sudoUserSubscribeMessage = (
     "You have no access to use this Command\n Get It From @Archxpert."
 )
 APIErrorMessage = "Your request activated the API's safety filters and could not be processed.\nPlease modify the prompt and try again."
-coolDownTime = 60
+coolDownTime = 0
 
 # Our Host URL should not be prepended with "https" nor should it have a trailing slash.
 os.environ["STABILITY_HOST"] = "grpc.stability.ai:443"
