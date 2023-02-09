@@ -1,6 +1,5 @@
+pyC8
 Flask
-requests
 Pillow
 stability-sdk
 gunicorn
-pyC8
