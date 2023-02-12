@@ -283,10 +283,10 @@ def telegram():
                     "User added successfully",
                     messageID,
                 )
-        else:
-            sendMessage(
-                chat_id, "Invalid Command. Please type /generate <prompt>", messageID
-            )
+        # else:
+        #     sendMessage(
+        #         chat_id, "Invalid Command. Please type /generate <prompt>", messageID
+        #     )
         return Response("ok", status=200)
     except:
         return Response("ok", status=200)
