@@ -287,6 +287,6 @@ def telegram():
         #     sendMessage(
         #         chat_id, "Invalid Command. Please type /generate <prompt>", messageID
         #     )
-        return Response("ok", status=200)
     except:
-        return Response("ok", status=200)
+        pass
+    return Response("ok", status=200)
