@@ -4,6 +4,9 @@ from stability_sdk import client
 import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 from flask import Flask, request, Response
 from c8 import C8Client
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -24,6 +27,7 @@ adminUserID = os.environ["ADMINUSERID"]
 MACROMETA_KEY = os.environ["MACROMETA"]
 collection_name = "users"
 timer = {}
+img2imgcommand = "/image"
 
 
 def getAllSudoUsers():
@@ -145,6 +149,25 @@ def sendMessage(chat_id, text, messageID):
     return r
 
 
+def sendImage(chatid, imagePath, messageID):
+    url = f"https://api.telegram.org/bot{botToken}/sendPhoto?chat_id={chatid}"
+    files = [
+        (
+            "photo",
+            (
+                imagePath,
+                open(
+                    imagePath,
+                    "rb",
+                ),
+                "image/png",
+            ),
+        )
+    ]
+    r = requests.post(url, files=files)
+    return r
+
+
 # Sign up for an account at the following link to get an API Key.
 # https://beta.dreamstudio.ai/membership
 
@@ -196,6 +219,43 @@ def stabilityAI(imagePrompt, steps):
                 )  # Save our generated images with their seed number as the filename.
                 fileNames.append(str(artifact.seed) + ".png")
     return fileNames
+
+
+def generateImageFromImage(prompt, img):
+    stability_api = client.StabilityInference(
+        key=STABILITY_KEY,  # API Key reference.
+        verbose=True,  # Print debug messages.
+        engine="stable-diffusion-512-v2-1",
+    )
+    # Set up our initial generation parameters.
+    answers2 = stability_api.generate(
+        prompt=prompt,
+        init_image=img,  # Assign our previously generated img as our Initial Image for transformation.
+        start_schedule=0.6,  # Set the strength of our prompt in relation to our initial image.
+        steps=30,  # Amount of inference steps performed on image generation. Defaults to 30.
+        cfg_scale=8.0,  # Influences how strongly your generation is guided to match your prompt.
+        width=400,  # Generation width, defaults to 512 if not included.
+        height=400,  # Generation height, defaults to 512 if not included.
+        sampler=generation.SAMPLER_K_DPMPP_2M,
+    )
+
+    # Set up our warning to print to the console if the adult content classifier is tripped.
+    # If adult content classifier is not tripped, display generated image.
+    for resp in answers2:
+        for artifact in resp.artifacts:
+            if artifact.finish_reason == generation.FILTER:
+                warnings.warn(
+                    "Your request activated the API's safety filters and could not be processed."
+                    "Please modify the prompt and try again."
+                )
+            if artifact.type == generation.ARTIFACT_IMAGE:
+                global img2
+                img2 = Image.open(io.BytesIO(artifact.binary))
+                img2.save(
+                    "/tmp/" + str(artifact.seed) + "-img2img.png"
+                )  # Save our generated image with its seed number as the filename and the img2img suffix so that we know this is our transformed image.
+                return "/tmp/" + str(artifact.seed) + "-img2img.png"
+    return None
 
 
 @app.route("/")
@@ -283,6 +343,39 @@ def telegram():
                     "User added successfully",
                     messageID,
                 )
+        elif (
+            inputText.startswith(img2imgcommand)
+            and len(get_required_text(inputText, img2imgcommand)) > 0
+        ):
+            if personID in timer and time.time() - timer[personID] < coolDownTime:
+                sendMessage(
+                    chat_id,
+                    "Please wait "
+                    + str(int(coolDownTime - time.time() + timer[personID]))
+                    + " seconds before generating another image",
+                    messageID,
+                )
+            else:
+                timer[personID] = time.time()
+                photoFileID = msg["message"]["reply_to_message"]["photo"][-1]["file_id"]
+                photoFile = requests.get(
+                    "https://api.telegram.org/bot"
+                    + botToken
+                    + "/getFile?file_id="
+                    + photoFileID
+                )
+                photoFile = photoFile.json()["result"]["file_path"]
+                photoFile = requests.get(
+                    "https://api.telegram.org/file/bot"
+                    + botToken
+                    + "/"
+                    + photoFile
+                )
+                photoFile = Image.open(io.BytesIO(photoFile.content))
+                imagePrompt = get_required_text(inputText, img2imgcommand)
+                output_file = generateImageFromImage(imagePrompt, photoFile)
+                if output_file:
+                    sendImage(chat_id, output_file, messageID)
         # else:
         #     sendMessage(
         #         chat_id, "Invalid Command. Please type /generate <prompt>", messageID
