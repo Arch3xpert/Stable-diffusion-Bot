@@ -232,7 +232,7 @@ def generateImageFromImage(prompt, img):
         prompt=prompt,
         init_image=img,  # Assign our previously generated img as our Initial Image for transformation.
         start_schedule=0.6,  # Set the strength of our prompt in relation to our initial image.
-        seed=123467458,
+#         seed=123467458,
         steps=30,  # Amount of inference steps performed on image generation. Defaults to 30.
         cfg_scale=8.0,  # Influences how strongly your generation is guided to match your prompt.
         width=400,  # Generation width, defaults to 512 if not included.
