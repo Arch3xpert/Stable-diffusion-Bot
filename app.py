@@ -235,8 +235,8 @@ def generateImageFromImage(prompt, img):
 #         seed=123467458,
         steps=30,  # Amount of inference steps performed on image generation. Defaults to 30.
         cfg_scale=8.0,  # Influences how strongly your generation is guided to match your prompt.
-        width=400,  # Generation width, defaults to 512 if not included.
-        height=400,  # Generation height, defaults to 512 if not included.
+        width=512,  # Generation width, defaults to 512 if not included.
+        height=512,  # Generation height, defaults to 512 if not included.
         sampler=generation.SAMPLER_K_DPMPP_2M,
     )
 
