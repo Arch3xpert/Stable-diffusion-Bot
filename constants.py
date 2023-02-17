@@ -1,6 +1,6 @@
 import os
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 numberOfImages = 2  # Maximum 10, Minimum 2
 stepsForNormal = 50  # Maximum 150, Minimum 10
