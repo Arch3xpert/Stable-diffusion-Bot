@@ -3,3 +3,4 @@ Flask
 Pillow
 stability-sdk
 gunicorn
+python-dotenv
